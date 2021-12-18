@@ -9,40 +9,36 @@ void djikstra_shortest_path(Graph G, int starting_idx, int final_idx) {
     map<string, string> shortest_previous_stopover;
     unordered_map<string, bool> visited_vertices;
     Graph unvisited_vertices;
-    Vertex * current_vertex;
-    int min, i, path_length_through_current_vertex;
+    Vertex current_vertex;
+    int path_length_through_current_vertex, i, min, idx_min;
     string starting_vertex, final_vertex;
     vector<string> printed_array;
 
-    current_vertex = &G.adjacency_list[starting_idx];
-    unvisited_vertices.add_vertex(*current_vertex);
+    unvisited_vertices.add_vertex(G.adjacency_list[starting_idx]);
     shortest_path[G.adjacency_list[starting_idx].name] = 0;
 
-    while (current_vertex != NULL) {
-        visited_vertices[current_vertex -> name] = true;
-        unvisited_vertices.delete_vertex(current_vertex->name);
-
-        for (auto &adjacent_vertex: current_vertex -> routes) {
-            if (!visited_vertices[(adjacent_vertex.first) -> name]) {
-                unvisited_vertices.add_vertex(*(adjacent_vertex.first));
-            }
-            path_length_through_current_vertex = shortest_path[current_vertex->name] + adjacent_vertex.second;
-
-            if (!shortest_path[(adjacent_vertex.first) -> name] || path_length_through_current_vertex < shortest_path[(adjacent_vertex.first) -> name]) {
-                shortest_path[(adjacent_vertex.first) -> name] = path_length_through_current_vertex;
-                shortest_previous_stopover[(adjacent_vertex.first) -> name] = current_vertex -> name;
+    while (unvisited_vertices.length != 0) {
+        min = numeric_limits<int>::max();
+        for (i = 0; i < unvisited_vertices.length; i++) {
+            if (!(shortest_path.count(unvisited_vertices.adjacency_list[i].name)) || (shortest_path[unvisited_vertices.adjacency_list[i].name] < min)) {
+                idx_min = i;
+                min = shortest_path[unvisited_vertices.adjacency_list[i].name];
             }
         }
+        current_vertex = unvisited_vertices.adjacency_list[idx_min];
+        unvisited_vertices.delete_vertex(unvisited_vertices.adjacency_list[idx_min].name);
+        visited_vertices[unvisited_vertices.adjacency_list[idx_min].name] = true;
 
-        min = numeric_limits<int>::max();
-        current_vertex = NULL;
+        map<Vertex *, int>::iterator adjacent_vertex;
+        for (adjacent_vertex = (current_vertex.routes).begin(); adjacent_vertex != (current_vertex.routes).end(); adjacent_vertex++) {
+            if (!(visited_vertices[(adjacent_vertex -> first) -> name])) {
+                unvisited_vertices.add_vertex(*(adjacent_vertex -> first));
+            }
+            path_length_through_current_vertex = shortest_path[current_vertex.name] + adjacent_vertex -> second;
 
-        for (i = 0; i < unvisited_vertices.length; i++) {
-            if (!visited_vertices[unvisited_vertices.adjacency_list[i].name]) {
-                if (shortest_path[unvisited_vertices.adjacency_list[i].name] < min) {
-                    min = shortest_path[unvisited_vertices.adjacency_list[i].name];
-                    current_vertex = &(unvisited_vertices.adjacency_list[i]);
-                }
+            if (!(shortest_path.count((adjacent_vertex -> first) -> name)) || path_length_through_current_vertex < shortest_path[(adjacent_vertex -> first) -> name]) {
+                shortest_path[(adjacent_vertex -> first) -> name] = path_length_through_current_vertex;
+                shortest_previous_stopover[(adjacent_vertex -> first) -> name] = current_vertex.name;
             }
         }
     }
@@ -96,7 +92,7 @@ void djikstra_shortest_path2(Graph G, int starting_idx, int final_idx) {
     while (!unvisited_vertices.isEmpty()) {
         val = unvisited_vertices.dequeue();
 
-        if (!shortest_path[val.to -> name] || shortest_path[val.to -> name] > val.path_length) {
+        if (!shortest_path.count(val.to -> name) || shortest_path[val.to -> name] > val.path_length) {
             shortest_path[val.to -> name] = val.path_length;
             shortest_previous_stopover[val.to -> name] = val.from;
         }
